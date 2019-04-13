@@ -12,4 +12,3 @@ cp_remote_file () {
 echo "\nCopying files..."
 cp_remote_file "/home/ubuntu/cloning/*.ipynb" "./"
 cp_remote_file "/home/ubuntu/cloning/*.py" "./"
-cp_remote_file "/home/ubuntu/cloning/models/*" "./models/" 
