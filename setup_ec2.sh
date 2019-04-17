@@ -20,7 +20,7 @@ cp_file_remote () {
 
 echo "\nCreating directories..."
 mk_remote_dir "cloning"
-mk_remote_dir "cloning/my-videos"
+mk_remote_dir "cloning/my-videos-center"
 mk_remote_dir "cloning/models"
 
 echo "\nCopying files..."
@@ -32,5 +32,5 @@ exec_remote "chmod +x cloning/*.sh"
 exec_remote "chmod +x *.sh"
 
 echo "\nSyncing data from S3..."
-exec_remote "aws s3 sync s3://behavioral-cloning/ cloning/my-videos/"
+exec_remote "aws s3 sync s3://behavioral-cloning/ cloning/my-videos-center/"
 exec_remote "aws s3 sync s3://behavioral-cloning-models/ cloning/models/"
