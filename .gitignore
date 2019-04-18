@@ -2,3 +2,5 @@
 my-videos
 models
 my-videos-center
+.idea
+__pycache__
