@@ -102,7 +102,7 @@ def randomly_load_images(registries: pd.DataFrame, batch_size=32) -> Tuple[np.nd
     """
     batch_idx = np.random.choice(registries.shape[0], batch_size)
 
-    batch_registries = registries.loc[batch_idx].reset_index(drop=True)
+    batch_registries = registries.iloc[batch_idx]
 
     images = np.stack(batch_registries['center_image'].map(plt.imread), axis=0)
     angles = batch_registries['steering_angle']
