@@ -1,21 +1,6 @@
 import numpy as np
-import cv2
 from functools import reduce
 from typing import Callable, Generator, Tuple, List
-
-
-def resize_to_square() -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
-    """Resize a cropped image to become square.
-
-    Returns:
-         a transform which applies the resizing
-    """
-    def resize(images, angles):
-        height = images.shape[2]
-
-        return np.stack([cv2.resize(img, (height, height)) for img in images]), angles
-
-    return resize
 
 
 def random_vertical_flip() -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -34,42 +19,14 @@ def random_vertical_flip() -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarra
     return random_flip
 
 
-def scale_images(
-        coeff: float = 1 / 255.0,
-        bias: float = 0.5
-) -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
-    """Scales images to an interval by applying a linear transform. The default interval is [-0.5, 0.5].
-
-    Args:
-        coeff: scaling coefficient
-        bias: scaling bias
-
-    Returns:
-        transform function which scales images
-    """
-    return lambda images, angles: (coeff * images - bias, angles)
-
-
-def crop_images_vertically(
-        top_crop: int = 60,
-        bottom_crop: int = 20
-) -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
-    """Crops an image vertically by removing given pixels from the top and bottom.
-
-    Args:
-        top_crop: pixels to remove from top of image
-        bottom_crop: pixels to remove from bottom of image
-
-    Return:
-        transform function which applies the crop on images
-    """
-    return lambda images, angles: (images[:, top_crop:(images.shape[1] - bottom_crop), :, :], angles)
+def augmentations():
+    return [random_vertical_flip()]
 
 
 def transform_images(
         images: np.ndarray,
         angles: np.ndarray,
-        transforms: List[Callable[[np.ndarray, np.ndarray], List[np.ndarray]]]
+        transforms: List[Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray]]]
 ) -> List[np.ndarray]:
     """Applies a list of transforms to all the images and measurements of a given batch.
 
@@ -107,10 +64,8 @@ def image_generator_from_dataset(
         image_batch = images[sample_idx]
         measurement_batch = angles[sample_idx]
 
-        standard_transforms = [crop_images_vertically(), scale_images(), resize_to_square()]
-        augmentations = [random_vertical_flip()] if augment else []
+        yield (
+            transform_images(image_batch, measurement_batch, augmentations())
+            if augment
+            else [image_batch, measurement_batch])
 
-        yield transform_images(
-            image_batch,
-            measurement_batch,
-            standard_transforms + augmentations)

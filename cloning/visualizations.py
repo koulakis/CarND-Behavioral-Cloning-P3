@@ -32,9 +32,5 @@ def plot_layers(input_image, evaluation_functions, layer_names):
     plt.imshow(input_image)
     plt.show()
 
-    plt.title('Cropped image')
-    plt.imshow(layer_outputs[0][0].astype('uint8'))
-    plt.show()
-
-    for layer, name in zip(layer_outputs[1:], layer_names[1:]):
+    for layer, name in zip(layer_outputs, layer_names):
         plot_layer_channels(layer[0], name)
