@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from functools import reduce
-from typing import Callable, Generator, Tuple, List
+from typing import Callable, Generator, Tuple, List, Union
 
 
 def random_vertical_flip() -> Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
@@ -48,17 +48,25 @@ def transform_images(
     return reduce(lambda acc, nxt: nxt(*acc), transforms, [images, angles])
 
 
-def load_image_registry(project_directory: str, image_set_directory: str) -> pd.DataFrame:
+def load_image_registry(
+        project_directory: str,
+        image_set_directory_angle: Union[str, Tuple[str, float]]
+) -> pd.DataFrame:
     """Loads the registry of a single image set.
 
     Args:
         project_directory: directory of the project
-        image_set_directory: directory of the image set
+        image_set_directory_angle: directory of the image set
 
     Returns:
         a data frame with the registry
     """
-    return (
+    image_set_directory = (
+        image_set_directory_angle
+        if type(image_set_directory_angle) == str
+        else image_set_directory_angle[0])
+
+    registry = (
         pd.read_csv(
             f'./my-videos-center/{image_set_directory}/driving_log.csv',
             header=None,
@@ -72,8 +80,13 @@ def load_image_registry(project_directory: str, image_set_directory: str) -> pd.
                 + df['center_image'].str.split('IMG').str[1])
         [['center_image', 'steering_angle']])
 
+    return (
+        registry
+        if type(image_set_directory_angle) == str
+        else registry.assign(steering_angle=image_set_directory_angle[1]))
 
-def load_image_registries(project_directory: str, image_set_directories: List[str]):
+
+def load_image_registries(project_directory: str, image_set_directories: List[Union[str, Tuple[str, float]]]):
     """Loads the registry data frames for given image sets.
 
     Args:
